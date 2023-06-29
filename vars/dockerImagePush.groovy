@@ -12,18 +12,20 @@
 
 // above is the code for docker hub related
 
-import java.util.Random
+import java.text.SimpleDateFormat
+import java.util.Date
 
 def call (String aws_account_id, String region, String ecr_repoName)
 
 {
-    def random = new Random()
-    def randomTag = "Build${random.nextInt(1000)}"
+   def timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date())
+   def version = "build-${timestamp}"
 
     sh """
 
     aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${aws_account_id}.dkr.ecr.${region}.amazonaws.com
-    docker push ${aws_account_id}.dkr.ecr.${region}.amazonaws.com/${ecr_repoName}:${randomTag}
+    docker tag ${aws_account_id}.dkr.ecr.${region}.amazonaws.com/${ecr_repoName}:latest ${aws_account_id}.dkr.ecr.${region}.amazonaws.com/${ecr_repoName}:${version}
+    docker push ${aws_account_id}.dkr.ecr.${region}.amazonaws.com/${ecr_repoName}:${version}
 
     """
 }
